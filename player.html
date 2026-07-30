@@ -109,6 +109,17 @@
     font-size:12px;color:#8a8474;display:flex;justify-content:space-between;gap:8px;
   }
 
+  .evnote{
+    background:rgba(90,130,180,.09);border:1px solid rgba(120,160,210,.28);
+    border-radius:10px;padding:13px 15px;font-size:13.5px;line-height:1.8;
+    color:#b6c4d6;margin-top:14px;white-space:pre-wrap;
+  }
+  .evnote b{color:#a8c8ee}
+  .evgrp{
+    font-size:11px;letter-spacing:3px;color:#b09a5c;margin:20px 0 2px;
+    padding-bottom:6px;border-bottom:1px solid rgba(212,175,55,.2);
+  }
+
   /* ---------- 胜利条件 ---------- */
   .win{
     background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.3);
@@ -282,33 +293,30 @@ function render(){
     html += '</div>';
   });
 
-  // 搜证
-  [1,2].forEach(round => {
-    const cs = r.clues.filter(c => c.r === round);
-    if(!cs.length) return;
-    const id = 'clue'+round;
-    const open = isOpen(id);
-    const label = round === 1 ? '第一次搜证 · 我的线索' : '第二次搜证 · 我的线索';
+  // 公开证据包（全员内容相同）
+  (DATA.ev || []).forEach(pk => {
+    const id = 'ev'+pk.r, open = isOpen(id);
     html += '<div class="act '+(open?'':'locked')+'" id="box-'+id+'">';
     html += '<div class="act-head" onclick="toggle(\''+id+'\')">' +
             '<span class="ic">'+(open?'🔍':'🔒')+'</span>' +
-            '<span class="t">'+label+'（'+cs.length+' 张）</span>' +
+            '<span class="t">'+esc(pk.title)+'（'+pk.items.length+' 条 · 全员公开）</span>' +
             '<span class="ar">▶</span></div>';
     if(open){
       html += '<div class="act-body">';
-      cs.forEach(c => {
+      html += '<div class="evnote">'+fmt(pk.note)+'</div>';
+      let lastG = '';
+      pk.items.forEach(it => {
+        if(it.g !== lastG){ html += '<div class="evgrp">'+esc(it.g)+'</div>'; lastG = it.g; }
         html += '<div class="clue">' +
-                '<div class="loc">📍 '+esc(c.loc)+'</div>' +
-                '<h4>'+esc(c.t)+'</h4>' +
-                '<p>'+fmt(c.b)+'</p>' +
-                '<div class="foot"><span>仅你可见</span>' +
-                '<span>可公开 / 可隐瞒</span></div></div>';
+                '<div class="loc">证据 '+esc(it.no)+'</div>' +
+                '<h4>'+esc(it.h)+'</h4>' +
+                '<p>'+fmt(it.b)+'</p></div>';
       });
-      html += '<div class="after">▸ 这些线索默认是你的私人信息。你可以完整公开、部分公开，或者暂时不说。' +
-              '但不能篡改卡上的原文，也不能编造没有拿到的线索。</div>';
+      html += '<div class="after">▸ 这些证据六个人看到的完全一样，不用互相转述。' +
+              '当事人可以解释、可以隐瞒别的事，但不能否认证据里写死的客观事实。</div>';
       html += '</div>';
     }else{
-      html += lockBox(id, '搜证还没开始。主持人宣布进入这一轮搜证时会报出解锁码。');
+      html += lockBox(id, '这一轮证据还没公开。走到那一步时会给出解锁码。');
     }
     html += '</div>';
   });
@@ -357,8 +365,7 @@ function lockBox(id, tip){
 function codeFor(id){
   const r = DATA.r;
   if(id.startsWith('act')) return r.acts[+id.slice(3)].code;
-  if(id === 'clue1') return (r.clues.find(c=>c.r===1)||{}).code;
-  if(id === 'clue2') return (r.clues.find(c=>c.r===2)||{}).code;
+  if(id.startsWith('ev')) return (DATA.ev.find(p => 'ev'+p.r === id) || {}).code;
   if(id === 'reveal') return DATA.rc;
   return null;
 }

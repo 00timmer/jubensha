@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>主持台</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+background:linear-gradient(180deg,#1a1f2e,#0a0e1a 60%);color:#e8e2d0;
+min-height:100vh;padding:0 0 40px}
+.wrap{max-width:620px;margin:0 auto;padding:0 16px}
+.hero{text-align:center;padding:26px 0 14px}
+.hero h1{font-size:26px;color:#d4af37;letter-spacing:4px;font-weight:700}
+.hero .s{font-size:12px;color:#7a7565;margin-top:8px;letter-spacing:2px}
+h2{font-size:16px;color:#e8e2d0;margin:26px 0 12px;padding-left:10px;border-left:3px solid #d4af37}
+.note{background:rgba(212,175,55,.07);border:1px dashed rgba(212,175,55,.3);
+border-radius:10px;padding:13px 15px;font-size:13px;line-height:1.75;color:#b09a5c}
+.note b{color:#e0c86a}
+.pl{background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.2);
+border-radius:12px;padding:14px;margin-bottom:10px}
+.pl-h{display:flex;align-items:center;gap:11px}
+.pl .av{font-size:30px}
+.pl .nm{font-size:17px;font-weight:600}
+.pl .mt{font-size:12px;color:#7a7565;margin-top:2px}
+.pl-h>div{flex:1;min-width:0}
+.cp{background:linear-gradient(180deg,#d4af37,#b8932b);color:#1a1f2e;border:none;
+border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600;
+font-family:inherit;cursor:pointer;white-space:nowrap}
+.cp:active{transform:scale(.97)}
+.cp.ok{background:#4caf50;color:#fff}
+.url{margin-top:10px;font-size:10px;color:#5a5545;word-break:break-all;
+font-family:ui-monospace,Menlo,monospace;line-height:1.5}
+.phase{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+border-radius:11px;margin-bottom:8px;overflow:hidden}
+.phase.on{border-color:#d4af37;background:rgba(212,175,55,.09)}
+.phase.done{opacity:.42}
+.ph-h{display:flex;align-items:center;gap:10px;padding:13px 15px;cursor:pointer}
+.ph-h .no{font-size:11px;color:#7a7565;font-family:ui-monospace,monospace}
+.ph-h .t{flex:1;font-size:15px;font-weight:600}
+.ph-h .mn{font-size:12px;color:#7a7565}
+.ph-h .cd{background:#d4af37;color:#1a1f2e;border-radius:6px;padding:3px 9px;
+font-size:14px;font-weight:700;letter-spacing:2px;font-family:ui-monospace,monospace}
+.ph-d{padding:0 15px 13px;font-size:13px;line-height:1.7;color:#9a9484;display:none}
+.phase.on .ph-d{display:block}
+.timer{position:sticky;top:0;z-index:20;background:rgba(10,14,26,.95);
+backdrop-filter:blur(10px);border-bottom:1px solid rgba(212,175,55,.2);
+padding:12px 16px;display:flex;align-items:center;gap:12px}
+.timer .now{flex:1;font-size:14px;color:#d4af37;font-weight:600}
+.timer .clk{font-size:25px;font-weight:700;font-family:ui-monospace,monospace;letter-spacing:1px}
+.timer .clk.over{color:#e74c3c}
+.timer button{background:transparent;border:1px solid rgba(212,175,55,.35);
+color:#b09a5c;border-radius:7px;padding:6px 11px;font-size:12px;font-family:inherit;cursor:pointer}
+.big-code{text-align:center;background:rgba(212,175,55,.12);
+border:1px solid rgba(212,175,55,.45);border-radius:12px;padding:16px;margin:12px 0}
+.big-code .lb{font-size:11px;color:#b09a5c;letter-spacing:3px}
+.big-code .vl{font-size:44px;font-weight:700;color:#d4af37;letter-spacing:11px;
+font-family:ui-monospace,monospace;margin-top:6px}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+td,th{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.07);text-align:left;vertical-align:top}
+th{color:#d4af37;font-size:12px;font-weight:600}
+td{color:#a9a394;line-height:1.6}
+td.k{color:#e8e2d0;font-weight:600;white-space:nowrap}
+.warn{background:rgba(192,57,43,.13);border:1px solid rgba(192,57,43,.4);
+border-radius:10px;padding:13px 15px;font-size:13px;line-height:1.75;color:#e8a49c;margin-top:10px}
+.warn b{color:#ff9a8d}
+.empty{text-align:center;padding:90px 20px;color:#7a7565;font-size:15px;line-height:1.9;white-space:pre-wrap}
+.empty .big{font-size:44px;margin-bottom:16px}
+</style></head><body>
+
+<div id="app"><div class="empty"><div class="big">🎬</div>正在解密主持台…</div></div>
+
+<script>
+// 主持台内容（含凶手身份、时间线、6 个玩家链接）全部加密存放，
+// 密钥只在链接的 # 之后，不会发给服务器。
+let D = null;
+
+function b64u(s){
+  const pad = s.length % 4 ? '='.repeat(4 - s.length % 4) : '';
+  const bin = atob(s.replace(/-/g,'+').replace(/_/g,'/') + pad);
+  return Uint8Array.from(bin, c => c.charCodeAt(0));
+}
+async function gunzip(bytes){
+  const st = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+  return new Response(st).text();
+}
+async function decrypt(blob, keyBytes){
+  const key = await crypto.subtle.importKey('raw', keyBytes, 'AES-GCM', false, ['decrypt']);
+  return new Uint8Array(await crypto.subtle.decrypt(
+    {name:'AES-GCM', iv: blob.slice(0,12)}, key, blob.slice(12)));
+}
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function fmt(s){ return esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>'); }
+
+async function boot(){
+  const h = decodeURIComponent(location.hash.replace(/^#/,''));
+  if(!h) return fail('没有主持台数据','请用你自己保存的主持台链接打开本页。');
+  try{
+    const dot = h.lastIndexOf('.');
+    const path = h.slice(0,dot), k = h.slice(dot+1);
+    const res = await fetch('d/'+path+'.txt',{cache:'no-store'});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    D = JSON.parse(await gunzip(await decrypt(b64u((await res.text()).trim()), b64u(k))));
+  }catch(e){
+    return fail('打不开主持台','链接可能不完整。请把完整链接复制到浏览器地址栏。\n\n（'+e.message+'）');
+  }
+  render();
+}
+function fail(t,d){
+  document.getElementById('app').innerHTML =
+    '<div class="empty"><div class="big">🎬</div><div style="color:#d4af37;font-size:19px;margin-bottom:12px">'+
+    esc(t)+'</div>'+esc(d)+'</div>';
+}
+
+function render(){
+  let h = '';
+  h += '<div class="timer"><div class="now" id="now">未开始</div>' +
+       '<div class="clk" id="clk">--:--</div>' +
+       '<button onclick="tgl()" id="btn">开始</button></div>';
+  h += '<div class="wrap">';
+  h += '<div class="hero"><h1>'+esc(D.title)+'</h1><div class="s">'+esc(D.sub)+'</div></div>';
+
+  h += '<h2>1 · 把链接发给玩家</h2>';
+  h += '<div class="note">每人一个专属链接，微信直接发。玩家点开就是自己的角色本，' +
+       '后面的幕和线索卡都锁着，等你报解锁码。<b>千万别发错人 —— 链接就是身份。</b></div>';
+  D.links.forEach(L => {
+    h += '<div class="pl"><div class="pl-h"><span class="av">'+esc(L.av)+'</span><div>' +
+         '<div class="nm">'+esc(L.name)+'</div>' +
+         '<div class="mt">'+esc(L.g)+' · '+esc(L.a)+' 岁 · '+esc(L.j)+'</div></div>' +
+         '<button class="cp" onclick="cp(this,\''+L.url+'\')">复制链接</button></div>' +
+         '<div class="url">'+esc(L.url)+'</div></div>';
+  });
+
+  h += '<h2>2 · 流程与解锁码</h2>';
+  h += '<div class="note">点任意阶段展开说明并开始计时。带金色数字的阶段，' +
+       '需要你大声报出四位解锁码，所有玩家在自己手机上输入。</div>';
+  D.phases.forEach((p, i) => {
+    h += '<div class="phase" id="ph'+i+'"><div class="ph-h" onclick="pick('+i+')">' +
+         '<span class="no">'+String(i+1).padStart(2,'0')+'</span>' +
+         '<span class="t">'+esc(p[0])+'</span><span class="mn">'+p[1]+'′</span>' +
+         (p[2] ? '<span class="cd">'+esc(p[2])+'</span>' : '') + '</div>' +
+         '<div class="ph-d">'+esc(p[3])+'</div></div>';
+  });
+
+  h += '<div class="big-code"><div class="lb">当前阶段解锁码</div>' +
+       '<div class="vl" id="bigcode">——</div></div>';
+
+  h += '<h2>3 · 解锁码总表</h2><table><tr><th>阶段</th><th>解锁码</th></tr>';
+  D.codeTable.forEach(r => h += '<tr><td class="k">'+esc(r[0])+'</td><td>'+esc(r[1])+'</td></tr>');
+  h += '</table>';
+
+  h += '<h2>4 · 上帝视角时间线</h2><table><tr><th>时间</th><th>人物</th><th>事件</th></tr>';
+  D.timeline.forEach(r => h += '<tr><td class="k">'+esc(r[0])+'</td><td class="k">'+esc(r[1])+
+       '</td><td>'+esc(r[2])+'</td></tr>');
+  h += '</table>';
+  h += '<div class="warn">'+fmt(D.dmWarn)+'</div>';
+
+  h += '<h2>5 · 常见问答</h2><table>';
+  D.faq.forEach(r => h += '<tr><td class="k">'+esc(r[0])+'</td><td>'+esc(r[1])+'</td></tr>');
+  h += '</table></div>';
+
+  document.getElementById('app').innerHTML = h;
+}
+
+let cur = -1, end = 0, tk = null, paused = 0;
+function pick(i){
+  cur = i; end = Date.now() + D.phases[i][1]*60000; paused = 0;
+  document.querySelectorAll('.phase').forEach((e,j)=>{
+    e.classList.toggle('on', j===i); e.classList.toggle('done', j<i);
+  });
+  document.getElementById('now').textContent = (i+1)+' · '+D.phases[i][0];
+  document.getElementById('bigcode').textContent = D.phases[i][2] || '——';
+  document.getElementById('btn').textContent = '暂停';
+  if(tk) clearInterval(tk);
+  tk = setInterval(tick, 250); tick();
+  document.getElementById('ph'+i).scrollIntoView({behavior:'smooth', block:'center'});
+}
+function tick(){
+  const ms = end - Date.now(), a = Math.abs(ms);
+  const m = String(Math.floor(a/60000)).padStart(2,'0');
+  const s = String(Math.floor(a%60000/1000)).padStart(2,'0');
+  const c = document.getElementById('clk');
+  c.textContent = (ms<0?'+':'') + m + ':' + s;
+  c.classList.toggle('over', ms<0);
+}
+function tgl(){
+  const b = document.getElementById('btn');
+  if(tk){ clearInterval(tk); tk = null; paused = end - Date.now(); b.textContent = '继续'; }
+  else if(cur >= 0){ end = Date.now() + paused; tk = setInterval(tick,250); b.textContent = '暂停'; }
+  else pick(0);
+}
+function cp(btn, url){
+  navigator.clipboard.writeText(url).then(()=>{
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(()=>{ btn.textContent = '复制链接'; btn.classList.remove('ok'); }, 1600);
+  }).catch(()=> prompt('手动复制这个链接：', url));
+}
+boot();
+</script>
+</body></html>

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>剧本杀 · 角色本</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{
+    font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    background:#0a0e1a;color:#e8e2d0;-webkit-text-size-adjust:100%;
+  }
+  body{
+    background:linear-gradient(180deg,#1a1f2e 0%,#0a0e1a 60%);
+    min-height:100vh;padding:0 0 60px;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 16px}
+
+  /* ---------- 顶部 ---------- */
+  .hero{padding:28px 0 18px;text-align:center}
+  .hero .script{font-size:12px;color:#7a7565;letter-spacing:3px;margin-bottom:10px}
+  .hero .av{font-size:52px;line-height:1;margin-bottom:8px}
+  .hero h1{font-size:30px;font-weight:700;color:#d4af37;letter-spacing:3px}
+  .hero .meta{font-size:13px;color:#8a8474;margin-top:6px}
+
+  .warn{
+    background:rgba(192,57,43,.14);border:1px solid rgba(192,57,43,.45);
+    border-radius:10px;padding:11px 14px;font-size:12.5px;line-height:1.6;
+    color:#e8a49c;margin-bottom:18px;
+  }
+  .warn b{color:#ff9a8d}
+
+  /* ---------- 幕 ---------- */
+  .act{
+    border:1px solid rgba(212,175,55,.22);border-radius:14px;
+    margin-bottom:14px;overflow:hidden;background:rgba(255,255,255,.03);
+  }
+  .act.locked{border-color:rgba(255,255,255,.09);background:rgba(255,255,255,.015)}
+  .act-head{
+    padding:16px 18px;display:flex;align-items:center;gap:10px;cursor:pointer;
+    user-select:none;
+  }
+  .act-head .t{flex:1;font-size:16px;font-weight:600;color:#e8e2d0}
+  .act.locked .act-head .t{color:#6a6555}
+  .act-head .ic{font-size:17px;opacity:.85}
+  .act-head .ar{font-size:12px;color:#7a7565;transition:transform .2s}
+  .act.open .act-head .ar{transform:rotate(90deg)}
+  .act-body{display:none;padding:0 18px 18px}
+  .act.open .act-body{display:block}
+
+  .sec{margin-top:16px}
+  .sec h3{
+    font-size:14.5px;color:#d4af37;font-weight:600;margin-bottom:8px;
+    padding-left:10px;border-left:3px solid rgba(212,175,55,.55);
+  }
+  .sec p{font-size:15px;line-height:1.85;color:#c9c3b1;white-space:pre-wrap;word-break:break-word}
+  .sec b{color:#f0d98a;font-weight:600}
+
+  .sec.pub{
+    background:rgba(90,130,180,.09);border:1px solid rgba(120,160,210,.28);
+    border-radius:10px;padding:14px;
+  }
+  .sec.pub h3{color:#8fb4e0;border-left-color:rgba(143,180,224,.6)}
+  .sec.pub p{color:#b6c4d6}
+  .sec.pub .tag{
+    display:inline-block;font-size:10px;letter-spacing:2px;color:#8fb4e0;
+    border:1px solid rgba(143,180,224,.45);border-radius:4px;
+    padding:2px 6px;margin-bottom:8px;
+  }
+
+  .after{
+    margin-top:20px;padding:12px 14px;border-radius:9px;
+    background:rgba(212,175,55,.07);border:1px dashed rgba(212,175,55,.3);
+    font-size:12.5px;color:#b09a5c;line-height:1.6;
+  }
+
+  /* ---------- 锁 ---------- */
+  .lock{padding:0 18px 18px}
+  .lock p{font-size:13px;color:#7a7565;margin-bottom:10px;line-height:1.6}
+  .code-row{display:flex;gap:8px}
+  .code-row input{
+    flex:1;padding:13px;background:rgba(255,255,255,.06);
+    border:1px solid rgba(212,175,55,.25);border-radius:9px;
+    color:#e8e2d0;font-size:20px;font-family:inherit;text-align:center;
+    letter-spacing:8px;font-weight:600;
+  }
+  .code-row input:focus{outline:none;border-color:#d4af37}
+  .code-row button{
+    padding:13px 20px;background:linear-gradient(180deg,#d4af37,#b8932b);
+    color:#1a1f2e;border:none;border-radius:9px;font-size:15px;font-weight:600;
+    font-family:inherit;cursor:pointer;
+  }
+  .code-row button:active{transform:scale(.97)}
+  .err{color:#e07b6a;font-size:12.5px;margin-top:8px;display:none}
+
+  /* ---------- 线索卡 ---------- */
+  .clue{
+    background:linear-gradient(160deg,rgba(212,175,55,.1),rgba(212,175,55,.03));
+    border:1px solid rgba(212,175,55,.4);border-radius:12px;
+    padding:16px;margin-top:12px;
+  }
+  .clue .loc{font-size:11px;letter-spacing:2px;color:#b09a5c;margin-bottom:6px}
+  .clue h4{font-size:17px;color:#f0d98a;margin-bottom:9px;font-weight:600}
+  .clue p{font-size:14.5px;line-height:1.8;color:#cfc8b4;white-space:pre-wrap}
+  .clue b{color:#f5e3a0}
+  .clue .foot{
+    margin-top:12px;padding-top:10px;border-top:1px solid rgba(212,175,55,.2);
+    font-size:12px;color:#8a8474;display:flex;justify-content:space-between;gap:8px;
+  }
+
+  /* ---------- 胜利条件 ---------- */
+  .win{
+    background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.3);
+    border-radius:12px;padding:16px;margin-bottom:14px;
+  }
+  .win h3{font-size:14px;color:#7fc884;margin-bottom:8px;font-weight:600}
+  .win p{font-size:14px;line-height:1.8;color:#b3ccb4;white-space:pre-wrap}
+
+  /* ---------- 复盘 ---------- */
+  .rv-sec{margin-top:20px}
+  .rv-sec h3{font-size:16px;color:#e74c3c;margin-bottom:10px;font-weight:600}
+  .rv-sec p{font-size:14.5px;line-height:1.85;color:#c9c3b1;white-space:pre-wrap}
+  .rv-sec b{color:#ff9a8d}
+  .rv-sec ul{list-style:none;margin-top:6px}
+  .rv-sec li{
+    font-size:14px;line-height:1.75;color:#c9c3b1;padding:9px 0 9px 16px;
+    border-left:2px solid rgba(231,76,60,.35);margin-bottom:6px;
+  }
+  .rv-name{color:#d4af37;font-weight:600}
+
+  /* ---------- 工具条 ---------- */
+  .tools{
+    position:fixed;left:0;right:0;bottom:0;
+    background:rgba(10,14,26,.94);backdrop-filter:blur(10px);
+    border-top:1px solid rgba(212,175,55,.16);
+    padding:9px 16px calc(9px + env(safe-area-inset-bottom));
+    display:flex;gap:8px;justify-content:center;align-items:center;z-index:50;
+  }
+  .tools button{
+    background:transparent;border:1px solid rgba(212,175,55,.3);color:#b09a5c;
+    border-radius:8px;padding:7px 14px;font-size:13px;font-family:inherit;cursor:pointer;
+  }
+  .tools button:active{background:rgba(212,175,55,.12)}
+  .tools .fs{font-size:11px;color:#6a6555}
+
+  .empty{text-align:center;padding:80px 20px;color:#7a7565;font-size:15px;line-height:1.9}
+  .empty .big{font-size:44px;margin-bottom:16px}
+
+  body.fs1 .sec p,body.fs1 .clue p,body.fs1 .win p,body.fs1 .rv-sec p,body.fs1 .rv-sec li{font-size:16.5px}
+  body.fs2 .sec p,body.fs2 .clue p,body.fs2 .win p,body.fs2 .rv-sec p,body.fs2 .rv-sec li{font-size:18.5px;line-height:1.95}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<div class="tools" id="tools" style="display:none">
+  <button onclick="fontSize(-1)">A−</button>
+  <span class="fs" id="fsLabel">字号</span>
+  <button onclick="fontSize(1)">A+</button>
+  <button onclick="collapseAll()">收起全部</button>
+</div>
+
+<script>
+// ============================================================
+// 数据加载：支持两种链接
+//   短链  #wanfan/slug.密钥      → 拉 d/wanfan/slug.txt，用链接里的密钥解密
+//   长链  #d=<base64url gzip>    → 全部数据在链接里，零请求
+//
+// 短链模式下，服务器上存的是密文；密钥只存在于 # 之后，
+// 而浏览器永远不会把 # 后面的内容发给服务器。
+// 所以托管方拿不到剧本内容，别人翻到文件也解不开。
+// ============================================================
+let DATA = null, KEY = '';
+
+async function boot(){
+  const h = decodeURIComponent(location.hash.replace(/^#/,''));
+  if(!h){ return renderEmpty('没有角色数据','请通过主持人发给你的专属链接打开本页。'); }
+
+  try{
+    if(h.startsWith('d=')){
+      DATA = JSON.parse(await gunzip(b64u(h.slice(2))));
+      KEY = 'jbs_long_' + (DATA.r ? DATA.r.name : 'x');
+    }else{
+      const dot = h.lastIndexOf('.');
+      if(dot < 0) throw new Error('链接缺少密钥');
+      const path = h.slice(0, dot), k = h.slice(dot + 1);
+      const res = await fetch('d/' + path + '.txt', {cache:'no-store'});
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      DATA = JSON.parse(await gunzip(await decrypt(b64u((await res.text()).trim()), b64u(k))));
+      KEY = 'jbs_' + path;
+    }
+  }catch(e){
+    return renderEmpty('打不开这个角色本',
+      '链接可能不完整，或者网络有问题。\n请把主持人发的链接完整复制到浏览器地址栏再试一次。\n\n（' + e.message + '）');
+  }
+  render();
+}
+
+function b64u(s){
+  const pad = s.length % 4 ? '='.repeat(4 - s.length % 4) : '';
+  const bin = atob(s.replace(/-/g,'+').replace(/_/g,'/') + pad);
+  return Uint8Array.from(bin, c => c.charCodeAt(0));
+}
+
+async function gunzip(bytes){
+  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+  return new Response(stream).text();
+}
+
+async function decrypt(blob, keyBytes){
+  const iv = blob.slice(0, 12), ct = blob.slice(12);
+  const key = await crypto.subtle.importKey('raw', keyBytes, 'AES-GCM', false, ['decrypt']);
+  return new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM', iv}, key, ct));
+}
+
+// ============================================================
+// 解锁状态（存本地，刷新不丢）
+// ============================================================
+function unlocked(){
+  try{ return JSON.parse(localStorage.getItem(KEY+'_u') || '[]'); }catch(e){ return []; }
+}
+function unlock(id){
+  const u = unlocked(); if(!u.includes(id)) u.push(id);
+  localStorage.setItem(KEY+'_u', JSON.stringify(u));
+}
+function isOpen(id){ return unlocked().includes(id); }
+
+// ============================================================
+// 渲染
+// ============================================================
+function esc(s){
+  return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+function fmt(s){
+  return esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+}
+
+function renderEmpty(t, d){
+  document.getElementById('app').innerHTML =
+    '<div class="empty"><div class="big">🎭</div><div style="color:#d4af37;font-size:19px;margin-bottom:12px">'+esc(t)+'</div>'+
+    '<div style="white-space:pre-wrap">'+esc(d)+'</div></div>';
+}
+
+function render(){
+  const r = DATA.r, root = document.getElementById('app');
+  let html = '';
+
+  html += '<div class="hero">' +
+    '<div class="script">'+esc(DATA.t)+'</div>' +
+    '<div class="av">'+esc(r.av)+'</div>' +
+    '<h1>'+esc(r.name)+'</h1>' +
+    '<div class="meta">'+esc(r.g)+' · '+esc(r.a)+' 岁 · '+esc(r.j)+'</div>' +
+    '</div>';
+
+  html += '<div class="warn">🔒 <b>这是你一个人的剧本本。</b>不要把屏幕给别人看，也不要截图转发。' +
+          '看到锁住的部分，等主持人报出解锁码再打开——提前翻会毁掉整局游戏。</div>';
+
+  html += '<div class="win"><h3>🎯 你的胜利条件</h3><p>'+fmt(r.win)+'</p></div>';
+
+  // 幕
+  r.acts.forEach((a, i) => {
+    const id = 'act'+i;
+    const open = (a.code === '') || isOpen(id);
+    html += '<div class="act '+(open?'':'locked')+(open&&i===0?' open':'')+'" id="box-'+id+'">';
+    html += '<div class="act-head" onclick="toggle(\''+id+'\')">' +
+            '<span class="ic">'+(open?'📖':'🔒')+'</span>' +
+            '<span class="t">'+esc(a.t)+'</span>' +
+            '<span class="ar">▶</span></div>';
+    if(open){
+      html += '<div class="act-body">';
+      a.secs.forEach(s => {
+        html += '<div class="sec'+(s.pub?' pub':'')+'">' +
+                (s.pub ? '<div class="tag">全员公开</div>' : '') +
+                '<h3>'+esc(s.h)+'</h3><p>'+fmt(s.b)+'</p></div>';
+      });
+      html += '<div class="after">▸ '+esc(a.after)+'</div>';
+      html += '</div>';
+    }else{
+      html += lockBox(id, '第 '+(i+1)+' 幕还没有解锁。主持人推进到这一阶段时会报出四位解锁码。');
+    }
+    html += '</div>';
+  });
+
+  // 搜证
+  [1,2].forEach(round => {
+    const cs = r.clues.filter(c => c.r === round);
+    if(!cs.length) return;
+    const id = 'clue'+round;
+    const open = isOpen(id);
+    const label = round === 1 ? '第一次搜证 · 我的线索' : '第二次搜证 · 我的线索';
+    html += '<div class="act '+(open?'':'locked')+'" id="box-'+id+'">';
+    html += '<div class="act-head" onclick="toggle(\''+id+'\')">' +
+            '<span class="ic">'+(open?'🔍':'🔒')+'</span>' +
+            '<span class="t">'+label+'（'+cs.length+' 张）</span>' +
+            '<span class="ar">▶</span></div>';
+    if(open){
+      html += '<div class="act-body">';
+      cs.forEach(c => {
+        html += '<div class="clue">' +
+                '<div class="loc">📍 '+esc(c.loc)+'</div>' +
+                '<h4>'+esc(c.t)+'</h4>' +
+                '<p>'+fmt(c.b)+'</p>' +
+                '<div class="foot"><span>指向：'+esc(c.to)+'</span>' +
+                '<span>可公开 / 可隐瞒</span></div></div>';
+      });
+      html += '<div class="after">▸ 这些线索默认是你的私人信息。你可以完整公开、部分公开，或者暂时不说。' +
+              '但不能篡改卡上的原文，也不能编造没有拿到的线索。</div>';
+      html += '</div>';
+    }else{
+      html += lockBox(id, '搜证还没开始。主持人宣布进入这一轮搜证时会报出解锁码。');
+    }
+    html += '</div>';
+  });
+
+  // 复盘
+  if(DATA.rv){
+    const id = 'reveal', open = isOpen(id);
+    html += '<div class="act '+(open?'':'locked')+'" id="box-'+id+'">';
+    html += '<div class="act-head" onclick="toggle(\''+id+'\')">' +
+            '<span class="ic">'+(open?'🎭':'🔒')+'</span>' +
+            '<span class="t">结局与真相复盘</span><span class="ar">▶</span></div>';
+    if(open){
+      const v = DATA.rv;
+      html += '<div class="act-body">';
+      html += '<div class="rv-sec"><h3>真相</h3><p>'+fmt(v.truth)+'</p></div>';
+      html += '<div class="rv-sec"><h3>证据链</h3><ul>' +
+              v.chain.map(x => '<li>'+fmt(x)+'</li>').join('') + '</ul></div>';
+      html += '<div class="rv-sec"><h3>为什么不是他们</h3><ul>' +
+              v.exclusions.map(x => '<li><span class="rv-name">'+esc(x[0])+'</span>：'+fmt(x[1])+'</li>').join('') +
+              '</ul></div>';
+      html += '<div class="rv-sec"><h3>每个人的结局</h3><ul>' +
+              v.endings.map(x => '<li><span class="rv-name">'+esc(x[0])+'</span>：'+fmt(x[1])+'</li>').join('') +
+              '</ul></div>';
+      html += '</div>';
+    }else{
+      html += lockBox(id, '投票结束后，主持人才会报出复盘解锁码。提前打开就没意思了。');
+    }
+    html += '</div>';
+  }
+
+  root.innerHTML = html;
+  document.getElementById('tools').style.display = 'flex';
+  applyFont();
+}
+
+function lockBox(id, tip){
+  return '<div class="lock">' +
+    '<p>'+esc(tip)+'</p>' +
+    '<div class="code-row">' +
+    '<input id="in-'+id+'" type="tel" inputmode="numeric" maxlength="4" placeholder="0000" ' +
+    'oninput="if(this.value.length===4)tryUnlock(\''+id+'\')">' +
+    '<button onclick="tryUnlock(\''+id+'\')">解锁</button></div>' +
+    '<div class="err" id="err-'+id+'">解锁码不对，跟主持人确认一下。</div></div>';
+}
+
+function codeFor(id){
+  const r = DATA.r;
+  if(id.startsWith('act')) return r.acts[+id.slice(3)].code;
+  if(id === 'clue1') return (r.clues.find(c=>c.r===1)||{}).code;
+  if(id === 'clue2') return (r.clues.find(c=>c.r===2)||{}).code;
+  if(id === 'reveal') return DATA.rc;
+  return null;
+}
+
+function tryUnlock(id){
+  const el = document.getElementById('in-'+id);
+  const v = (el.value || '').trim();
+  if(v === codeFor(id)){
+    unlock(id);
+    render();
+    setTimeout(() => {
+      const box = document.getElementById('box-'+id);
+      if(box){ box.classList.add('open'); box.scrollIntoView({behavior:'smooth', block:'start'}); }
+    }, 40);
+  }else{
+    document.getElementById('err-'+id).style.display = 'block';
+    el.value = '';
+  }
+}
+
+function toggle(id){
+  const box = document.getElementById('box-'+id);
+  if(box && !box.classList.contains('locked')) box.classList.toggle('open');
+}
+function collapseAll(){
+  document.querySelectorAll('.act.open').forEach(b => b.classList.remove('open'));
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// 字号
+function fontSize(d){
+  let n = +(localStorage.getItem('jbs_fs') || 0) + d;
+  n = Math.max(0, Math.min(2, n));
+  localStorage.setItem('jbs_fs', n);
+  applyFont();
+}
+function applyFont(){
+  const n = +(localStorage.getItem('jbs_fs') || 0);
+  document.body.className = n ? 'fs'+n : '';
+  document.getElementById('fsLabel').textContent = ['标准','大','特大'][n];
+}
+
+// 防止误退出丢状态：不需要，解锁状态已存 localStorage
+boot();
+</script>
+</body>
+</html>

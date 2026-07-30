@@ -155,7 +155,16 @@ function render(){
   h += '</table>';
   h += '<div class="warn">'+fmt(D.dmWarn)+'</div>';
 
-  h += '<h2>5 · 常见问答</h2><table>';
+  if(D.clueTable){
+    h += '<h2>5 · 搜证卡分配表</h2>';
+    h += '<div class="note">每轮 6 张，每人 1 张，由剧本指定。玩家看不到"指向"这一列。</div>';
+    h += '<table><tr><th>轮</th><th>持有人</th><th>地点</th><th>线索</th><th>指向</th></tr>';
+    D.clueTable.forEach(r => h += '<tr><td class="k">'+esc(r[0])+'</td><td class="k">'+esc(r[1])+
+         '</td><td>'+esc(r[2])+'</td><td>'+esc(r[3])+'</td><td class="k">'+esc(r[4])+'</td></tr>');
+    h += '</table>';
+  }
+
+  h += '<h2>6 · 常见问答</h2><table>';
   D.faq.forEach(r => h += '<tr><td class="k">'+esc(r[0])+'</td><td>'+esc(r[1])+'</td></tr>');
   h += '</table></div>';
 
